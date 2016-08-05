@@ -3,38 +3,30 @@ import re
 import socket
 import Queue
 
-initial_page = "file:///Users/madison/Desktop/simple-html/index.html"
+header = "file:///Users/madison/Desktop/simple-html/"
+initial_page = header + "index.html"
+seen = {}
 
-htmlfile = urllib.urlopen(initial_page)
-htmltext = htmlfile.read()
-urls = re.findall(r'href=[\'"]?([^\'" >]+)', htmltext)
-regex = '<a[^>]*>(.*?)</a>'
-#regex = '<head>(.+?)</head>'
-names_pattern = re.compile(regex)
-names = re.findall(names_pattern, htmltext)
-pairs = dict(zip(names, urls))
-print pairs
-#url_queue = Queue.Queue()
-#seen = set()
-#seen.insert(initial_page)
-#url_queue.put(initial_page)
-#while(True): 
-#	if url_queue.size()>0:
-#		urrent_url = url_queue.get()    
-#		store(current_url)               
-#		for next_url in extract_urls(current_url): 
-#		seen.put(next_url)
-#		url_queue.put(next_url)
-#	else:
-#		break
+def merge_lists(x, y):
+	copy = dict(x)
+	copy.update(y)
+	return copy
 
-#urls = ["http://google.com", "http://nytimes.com", "http://CNN.com"]
-#regex = '<title>(.+?)</title>'
-#pattern = re.compile(regex)
-#i = 0
-#while i < len(urls):
-#	htmlfile = urllib.urlopen(urls[i])
-#	htmltext = htmlfile.read()
-#	titles = re.findall(pattern, htmltext)
-#	print titles
-#	i+=1
+def extract_url(webpage, pairs):
+	htmlfile = urllib.urlopen(webpage)
+	htmltext = htmlfile.read()
+	urls = re.findall(r'href=[\'"]?([^\'" >]+)', htmltext)
+	regex = '<a[^>]*>(.*?)</a>'
+	names_pattern = re.compile(regex)
+	names = re.findall(names_pattern, htmltext)
+	return merge_lists(dict(zip(urls, names)).items(), pairs.items())
+
+links =  extract_url(initial_page, {})
+while (len(links) > 0):
+	key, value = links.popitem()
+	if not (key in seen):
+		new_links = extract_url(header + key, links)
+		links = merge_lists(links, new_links)
+	seen[key] = value
+	print seen
+	
