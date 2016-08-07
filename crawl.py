@@ -4,6 +4,18 @@ import sys
 import socket
 import Queue
 
+class BloomFilter(object):
+	def __init__(self,capacity,errorRate):
+		return None
+
+	def __contains__(self,key):
+		return "unimplemented"
+	
+	def add(self,key):
+		return "unimplemented"
+
+f = BloomFilter(capacity=10000, errorRate=0.001)
+
 initial = raw_input("Please enter a initial web page\n") 
 k = initial.rfind("/")
 header = initial[:(k+1)]
@@ -34,9 +46,9 @@ def extract_url(webpage, pairs):
 links =  extract_url(initial_page, {})
 while (len(links) > 0):
 	key, value = links.popitem()
-	if not (key in seen):
+	if not (f.contains(key)):
 		new_links = extract_url(header + key, links)
 		links = merge_lists(links, new_links)
-	seen[key] = value
-	print seen
-						
+	f.add(key)
+	print f
+	
